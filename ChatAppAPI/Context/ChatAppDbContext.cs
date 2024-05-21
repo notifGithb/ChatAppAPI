@@ -3,13 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ChatAppAPI.Context
 {
-    public class ChatAppDbContext : DbContext
+    public class ChatAppDbContext(DbContextOptions options) : DbContext(options)
     {
-        public ChatAppDbContext(DbContextOptions options) : base(options) { }
-
-
         public DbSet<Mesaj> Mesajs { get; set; }
-        public DbSet<MesajOutbox> MesajOutboxes { get; set; }
         public DbSet<Kullanici> Kullanicis { get; set; }
 
 
@@ -17,6 +13,9 @@ namespace ChatAppAPI.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Kullanici>()
+                .HasIndex(u => u.KullaniciAdi)
+                .IsUnique();
 
             modelBuilder.Entity<Mesaj>()
             .HasOne(m => m.Gonderen)

@@ -1,28 +1,33 @@
 ﻿using AutoMapper;
 using ChatAppAPI.Context;
+using ChatAppAPI.Models;
 using ChatAppAPI.Servisler.Kullanicilar.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace ChatAppAPI.Servisler.Kullanicilar
 {
-    public class KullaniciServisi : IKullaniciServisi
+    public class KullaniciServisi(ChatAppDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor) : IKullaniciServisi
     {
-        private readonly ChatAppDbContext _context;
-        private readonly IMapper _mapper;
+        public string? MevcutKullaniciAdi => httpContextAccessor.HttpContext?.User?.Identity?.Name;
 
-        public KullaniciServisi(ChatAppDbContext context, IMapper mapper)
+        public KullaniciGetirDTO KullaniciGetir(string kullaniciAdi)
         {
-            _context = context;
-            _mapper = mapper;
-        }
-        public async Task<KullaniciGetirDTO> MevcutKullaniciGetir(string kullaniciId)
-        {
-            return _mapper.Map<KullaniciGetirDTO>(await _context.Kullanicis.FindAsync(kullaniciId));
+            return mapper.Map<KullaniciGetirDTO>(context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciAdi).FirstOrDefault());
         }
 
-        public async Task<IEnumerable<KullaniciGetirDTO>> TumDigerKullanicilariGetir(string kullaniciId)
+        public async Task<KullaniciGetirDTO> MevcutKullaniciGetir()
         {
-            return _mapper.Map<IEnumerable<KullaniciGetirDTO>>(await _context.Kullanicis.Where(k => k.Id != kullaniciId).ToListAsync());
+            Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == MevcutKullaniciAdi).FirstOrDefaultAsync() ?? throw new Exception("Kullanıcı Bulunamadı");
+
+            return mapper.Map<KullaniciGetirDTO>(kullanici);
+        }
+
+        public async Task<IEnumerable<KullaniciGetirDTO>> TumDigerKullanicilariGetir()
+        {
+            IEnumerable<Kullanici> kullanicilar = await context.Kullanicis.Where(k => k.KullaniciAdi != MevcutKullaniciAdi).ToListAsync();
+
+            if (!kullanicilar.Any()) throw new Exception("Kullanıcı Bulunamadı");
+            return mapper.Map<IEnumerable<KullaniciGetirDTO>>(kullanicilar);
         }
     }
 }

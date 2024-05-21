@@ -2,10 +2,10 @@
 {
     public class MesajGonderDTO
     {
-        public string Text { get; set; }
-        public DateTime GonderilmeZamani { get; set; }
-        public string GonderenId { get; set; }
-        public string AliciId { get; set; }
-        public bool GonderilmeDurumu { get; set; } = false;
+        public string? Text { get; set; }
+        public required string GonderenAdi { get; set; }
+        public required string AliciAdi { get; set; }
+        public DateTime GonderilmeZamani { get; set; } = DateTime.Now;
+
     }
 }

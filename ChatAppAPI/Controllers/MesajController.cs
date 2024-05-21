@@ -8,21 +8,14 @@ namespace ChatAppAPI.Controllers
     [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
-    public class MesajController : ControllerBase
+    public class MesajController(IMesajServisi mesajServisi) : ControllerBase
     {
-        private readonly IMesajServisi _mesajServisi;
-
-        public MesajController(IMesajServisi mesajServisi)
-        {
-            _mesajServisi = mesajServisi;
-        }
-
         [HttpGet]
         public async Task<IActionResult> MesajlarıGetir(string gonderenAdi, string aliciAdi)
         {
             if (ModelState.IsValid)
             {
-                var messages = await _mesajServisi.MesajlarıGetir(new KullaniciMesajlariGetirDTO { GonderenKullaniciAdi = gonderenAdi, AliciKullaniciAdi = aliciAdi });
+                var messages = await mesajServisi.MesajlarıGetir(new KullaniciMesajlariGetirDTO { GonderenKullaniciAdi = gonderenAdi, AliciKullaniciAdi = aliciAdi });
                 if (!messages.Any()) return NotFound();
                 return Ok(messages);
             }
@@ -35,7 +28,7 @@ namespace ChatAppAPI.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (await _mesajServisi.MesajlariGorulduYap(setUserMessages)) return Ok();
+                if (await mesajServisi.MesajlariGorulduYap(setUserMessages)) return Ok();
                 return NotFound();
             }
             return BadRequest();
@@ -48,7 +41,7 @@ namespace ChatAppAPI.Controllers
 
             if (mevcutKullaniciId == null) return Unauthorized();
 
-            var messagedUsers = await _mesajServisi.MesajlasilanKullanicilariGetir(mevcutKullaniciId);
+            var messagedUsers = await mesajServisi.MesajlasilanKullanicilariGetir(mevcutKullaniciId);
             if (messagedUsers == null) return NotFound();
 
             return Ok(messagedUsers);

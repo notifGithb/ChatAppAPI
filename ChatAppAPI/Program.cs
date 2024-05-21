@@ -5,6 +5,7 @@ using ChatAppAPI.Servisler.Kullanicilar;
 using ChatAppAPI.Servisler.Mesajlar;
 using ChatAppAPI.Servisler.OturumYonetimi;
 using ChatAppAPI.Servisler.OturumYonetimi.JWT;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
 
 
 SwaggerConfigurator.ConfigureSwaggerGen(builder.Services);
@@ -30,6 +32,7 @@ builder.Services.AddScoped<IMesajServisi, MesajServisi>();
 builder.Services.AddScoped<IOturumYonetimi, OturumYonetimi>();
 builder.Services.AddScoped<IJwtServisi, JwtServisi>();
 builder.Services.AddScoped<IKullaniciServisi, KullaniciServisi>();
+builder.Services.AddScoped<IClaimsTransformation, ClaimsTransformerGelistirici>();
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -58,7 +61,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     LifetimeValidator = (notBefore, expires, securityToken, validationParameters) =>
                         expires != null ? expires > DateTime.UtcNow : false,
 
-                    NameClaimType = ClaimTypes.NameIdentifier,
                 };
             });
 

@@ -18,17 +18,8 @@ namespace ChatAppAPI.Servisler.Mesajlar
 
         public async Task MesajEkle(MesajGonderDTO messageDto)
         {
-            Mesaj mesaj = _mapper.Map<Mesaj>(messageDto);
-            if (!mesaj.GonderilmeDurumu)
-            {
-                var outboxMessage = new MesajOutbox
-                {
-                    GonderenId = mesaj.GonderenId,
-                    AliciId = mesaj.AliciId,
-                    Mesaj = mesaj
-                };
-                await _context.MesajOutboxes.AddAsync(outboxMessage);
-            }
+            Mesaj mesaj = _mapper.Map<Mesaj>(messageDto) ?? throw new Exception();
+
             await _context.Mesajs.AddAsync(mesaj);
             await _context.SaveChangesAsync();
         }
@@ -48,8 +39,7 @@ namespace ChatAppAPI.Servisler.Mesajlar
                     User = _context.Kullanicis.Where(u => u.Id == id).Select(u => new
                     {
                         AliciId = u.Id,
-                        ReceiverName = u.Isim,
-                        ReceiverSurname = u.Soyisim,
+                        ReceiverUserName = u.KullaniciAdi,
                         ReceiverProfileImageUrl = u.ProfileImageUrl
                     }).FirstOrDefault(),
                     LastMessage = _context.Mesajs.Where(msg => msg.GonderenId == kullanici.Id && msg.AliciId == id || msg.GonderenId == id && msg.AliciId == kullanici.Id)
@@ -81,12 +71,12 @@ namespace ChatAppAPI.Servisler.Mesajlar
             return _mapper.Map<List<MesajlariGetirDTO>>(deneme);
         }
 
-        public async Task<List<GonderilememisMesajlariGetirDTO>> GonderilemeyenMesajlariGetir(string AliciId)
-        {
-            var outboxMessages = await _context.MesajOutboxes.Where(m => m.AliciId == AliciId).ToListAsync();
+        //public async Task<List<GonderilememisMesajlariGetirDTO>> GonderilemeyenMesajlariGetir(string AliciId)
+        //{
+        //    var outboxMessages = await _context.MesajOutboxes.Where(m => m.AliciId == AliciId).ToListAsync();
 
-            return _mapper.Map<List<GonderilememisMesajlariGetirDTO>>(outboxMessages);
-        }
+        //    return _mapper.Map<List<GonderilememisMesajlariGetirDTO>>(outboxMessages);
+        //}
 
         public async Task<bool> MesajlariGorulduYap(MesajlariGorulduYapDTO setUserMessages)
         {
@@ -107,13 +97,13 @@ namespace ChatAppAPI.Servisler.Mesajlar
             return true;
         }
 
-        public async Task MesajiGonderildiYap(int messageId)
-        {
-            var message = await _context.Mesajs.FindAsync(messageId);
-            var messageOutbox = await _context.MesajOutboxes.FindAsync(messageId);
-            message.GonderilmeDurumu = true;
-            _context.MesajOutboxes.Remove(messageOutbox);
-            await _context.SaveChangesAsync();
-        }
+        //public async Task MesajiGonderildiYap(int messageId)
+        //{
+        //    var message = await _context.Mesajs.FindAsync(messageId);
+        //    var messageOutbox = await _context.MesajOutboxes.FindAsync(messageId);
+        //    message.GonderilmeDurumu = true;
+        //    _context.MesajOutboxes.Remove(messageOutbox);
+        //    await _context.SaveChangesAsync();
+        //}
     }
 }

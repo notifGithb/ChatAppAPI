@@ -8,46 +8,21 @@ namespace ChatAppAPI.Controllers
     [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
-    public class KullaniciController : ControllerBase
+    public class KullaniciController(IKullaniciServisi kullaniciServisi) : ControllerBase
     {
-        private readonly IKullaniciServisi _kullaniciServisi;
-
-        public KullaniciController(IKullaniciServisi kullaniciServisi)
-        {
-            _kullaniciServisi = kullaniciServisi;
-        }
-
         [HttpGet]
         public async Task<IActionResult> MevcutKullaniciGetir()
         {
-            string? mevcutKullaniciId = User.Identity?.Name;
-
-            if (mevcutKullaniciId == null) return Unauthorized();
-
-            KullaniciGetirDTO? kullanici = await _kullaniciServisi.MevcutKullaniciGetir(mevcutKullaniciId);
-
-            if (kullanici != null)
-            {
-                return Ok(kullanici);
-            }
-            return NotFound();
+            KullaniciGetirDTO? kullanici = await kullaniciServisi.MevcutKullaniciGetir();
+            return Ok(kullanici);
         }
 
 
         [HttpGet]
         public async Task<IActionResult> TumDigerKullanicilariGetir()
         {
-            string? mevcutKullaniciId = User.Identity?.Name;
-
-            if (mevcutKullaniciId == null) return Unauthorized();
-
-            IEnumerable<KullaniciGetirDTO> kullanicilar = await _kullaniciServisi.TumDigerKullanicilariGetir(mevcutKullaniciId);
-
-            if (kullanicilar.Any())
-            {
-                return Ok(kullanicilar);
-            }
-            return NotFound();
+            IEnumerable<KullaniciGetirDTO> kullanicilar = await kullaniciServisi.TumDigerKullanicilariGetir();
+            return Ok(kullanicilar);
         }
     }
 }

@@ -7,12 +7,6 @@ namespace ChatAppAPI.Servisler.OturumYonetimi.DTOs
         [Required(ErrorMessage = "Kullanıcı Adı zorunlu")]
         public required string KullaniciAdi { get; set; }
 
-        [Required(ErrorMessage = "Isim zorunlu")]
-        public required string Isim { get; set; }
-
-        [Required(ErrorMessage = "Soyisim zorunlu")]
-        public required string Soyisim { get; set; }
-
         [Required(ErrorMessage = "Sifre zorunlu")]
         [DataType(DataType.Password)]
         public required string KullaniciSifresi { get; set; }

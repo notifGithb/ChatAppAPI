@@ -9,19 +9,8 @@ using System.Text;
 
 namespace ChatAppAPI.Servisler.OturumYonetimi
 {
-    public class OturumYonetimi : IOturumYonetimi
+    public class OturumYonetimi(IMapper mapper, IJwtServisi jwtServisi, ChatAppDbContext context) : IOturumYonetimi
     {
-        private readonly IMapper _mapper;
-        private readonly IJwtServisi _jwtServisi;
-        private readonly ChatAppDbContext _context;
-
-        public OturumYonetimi(IMapper mapper, IJwtServisi jwtServisi, ChatAppDbContext context)
-        {
-            _mapper = mapper;
-            _jwtServisi = jwtServisi;
-            _context = context;
-        }
-
         public async Task<string?> GirisYap(KullaniciGirisDto model)
         {
             try
@@ -32,13 +21,13 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
                 model.KullaniciSifresi = hashedSifre;
                 model.KullaniciAdi = model.KullaniciAdi.Trim().ToLower();
 
-                Kullanici? kullanici = await _context.Kullanicis.Where(k => k.KullaniciAdi == model.KullaniciAdi && k.KullaniciSifresi == model.KullaniciSifresi).FirstOrDefaultAsync();
+                Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == model.KullaniciAdi && k.KullaniciSifresi == model.KullaniciSifresi).FirstOrDefaultAsync();
                 if (kullanici == null)
                 {
                     return null;
                 }
 
-                string token = _jwtServisi.JwtTokenOlustur(kullanici);
+                string token = jwtServisi.JwtTokenOlustur(kullanici);
 
                 return token;
             }
@@ -57,25 +46,55 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
                     throw new ArgumentNullException(nameof(model), "Model boş olamaz.");
                 }
 
-                var mevcutKullanici = await _context.Kullanicis.Where(k => k.KullaniciAdi == model.KullaniciAdi).FirstOrDefaultAsync();
+                var mevcutKullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == model.KullaniciAdi).FirstOrDefaultAsync();
 
                 if (mevcutKullanici != null)
                 {
                     throw new ArgumentException("Bu kullanıcı adı mevcut.", model.KullaniciAdi);
                 }
                 model.KullaniciAdi = model.KullaniciAdi.Trim().ToLower();
-                Kullanici yeniKullanici = _mapper.Map<Kullanici>(model);
+                Kullanici yeniKullanici = mapper.Map<Kullanici>(model);
                 yeniKullanici.Id = Guid.NewGuid().ToString();
                 var byteArray = Encoding.Default.GetBytes(yeniKullanici.KullaniciSifresi);
                 var hashedSifre = Convert.ToBase64String(SHA256.HashData(byteArray));
 
                 yeniKullanici.KullaniciSifresi = hashedSifre;
 
-                await _context.Kullanicis.AddAsync(yeniKullanici);
-                await _context.SaveChangesAsync();
+                await context.Kullanicis.AddAsync(yeniKullanici);
+                await context.SaveChangesAsync();
 
             }
             catch (ArgumentNullException)
+            {
+                throw;
+            }
+        }
+
+        public async Task<string?> KullaniciAdiIleGirisYap(string kullaniciAdi)
+        {
+            try
+            {
+                Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciAdi).FirstOrDefaultAsync();
+                if (kullanici == null)
+                {
+                    var byteArray = Encoding.Default.GetBytes(Guid.NewGuid().ToString());
+                    var hashedSifre = Convert.ToBase64String(SHA256.HashData(byteArray));
+
+                    Kullanici yeniKullanici = new()
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        KullaniciAdi = kullaniciAdi,
+                        KullaniciSifresi = hashedSifre
+                    };
+                    await context.Kullanicis.AddAsync(yeniKullanici);
+                    await context.SaveChangesAsync();
+
+                }
+                string? token = jwtServisi.KullaniciAdiIleTokenOlustur(kullaniciAdi);
+
+                return token;
+            }
+            catch (Exception)
             {
                 throw;
             }

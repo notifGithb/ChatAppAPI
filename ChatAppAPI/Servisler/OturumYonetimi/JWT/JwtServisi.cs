@@ -6,38 +6,58 @@ using System.Text;
 
 namespace ChatAppAPI.Servisler.OturumYonetimi.JWT
 {
-    public class JwtServisi : IJwtServisi
+    public class JwtServisi(IConfiguration configuration) : IJwtServisi
     {
-        private readonly IConfiguration _configuration;
-
-        public JwtServisi(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
         public string JwtTokenOlustur(Kullanici kullanici)
         {
             var tokenhandler = new JwtSecurityTokenHandler();
             SymmetricSecurityKey key =
-                new(Encoding.UTF8.GetBytes(_configuration["JWT:Key"] ?? string.Empty));
+                new(Encoding.UTF8.GetBytes(configuration["JWT:Key"] ?? string.Empty));
 
 
             var claims = new List<Claim>
             {
-                new(ClaimTypes.NameIdentifier, kullanici.Id),
+                new("kullaniciAdi", kullanici.KullaniciAdi),
             };
             var tokendesc = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Audience = _configuration["Jwt:Audience"],
-                Issuer = _configuration["Jwt:Issuer"],
-                Expires = DateTime.UtcNow.AddHours(1),
+                Audience = configuration["Jwt:Audience"],
+                Issuer = configuration["Jwt:Issuer"],
+                Expires = DateTime.UtcNow.AddHours(3),
                 SigningCredentials = new SigningCredentials(
                     key,
                     SecurityAlgorithms.HmacSha256Signature
                 )
             };
 
+            var token = tokenhandler.CreateToken(tokendesc);
+            var finaltoken = tokenhandler.WriteToken(token);
+            return finaltoken;
+        }
+
+        public string? KullaniciAdiIleTokenOlustur(string kullaniciAdi)
+        {
+            var tokenhandler = new JwtSecurityTokenHandler();
+            SymmetricSecurityKey key =
+                new(Encoding.UTF8.GetBytes(configuration["JWT:Key"] ?? string.Empty));
+
+            var claims = new List<Claim>
+            {
+                new("kullaniciAdi", kullaniciAdi),
+            };
+
+            var tokendesc = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Audience = configuration["Jwt:Audience"],
+                Issuer = configuration["Jwt:Issuer"],
+                Expires = DateTime.UtcNow.AddHours(3),
+                SigningCredentials = new SigningCredentials(
+                    key,
+                    SecurityAlgorithms.HmacSha256Signature
+                )
+            };
             var token = tokenhandler.CreateToken(tokendesc);
             var finaltoken = tokenhandler.WriteToken(token);
             return finaltoken;
