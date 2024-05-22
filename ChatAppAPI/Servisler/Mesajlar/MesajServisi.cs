@@ -74,32 +74,43 @@ namespace ChatAppAPI.Servisler.Mesajlar
                 .Where(k => k.KullaniciAdi == kullaniciServisi.MevcutKullaniciAdi)
                 .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Kullanıcı Bulunamadı");
 
-            var mesajGonderilenKullanicilar = await context.Mesajs.Include(m => m.Gonderen).Include(m => m.Alici)
-                .Where(m => m.GonderenId == kullanici.Id || m.AliciId == kullanici.Id)
-                .Select(m => m.Alici)
-                .Distinct()
-                .Select(m => new MesajlasilanKullanicilariGetirDTO
-                {
-                    KullaniciAdi = m.KullaniciAdi,
-                    ProfileImageUrl = m.ProfileImageUrl,
+            var mesajGonderilenKullanicilar = await context.Mesajs
+    .Include(m => m.Gonderen)
+    .Include(m => m.Alici)
+    .Where(m => m.GonderenId == kullanici.Id || m.AliciId == kullanici.Id)
+    .Select(m => m.Alici)
+    .Distinct()
+    .Select(m => new MesajlasilanKullanicilariGetirDTO
+    {
+        KullaniciAdi = m.AlinanMesajlar
+            .OrderByDescending(msg => msg.GonderilmeZamani)
+            .Select(msg => msg.GonderenId != kullanici.Id ? msg.Gonderen.KullaniciAdi : msg.Alici.KullaniciAdi)
+            .FirstOrDefault(),
 
-                    SonGonderilenMesaj = m.AlinanMesajlar
-                    .Where(msg => msg.GonderenId == kullanici.Id || msg.AliciId == kullanici.Id)
-                    .OrderByDescending(msg => msg.GonderilmeZamani)
-                    .Select(msg => msg.Text)
-                    .FirstOrDefault(),
+        ProfileImageUrl = m.ProfileImageUrl,
 
-                    SonGonderilenMesajTarihi = m.AlinanMesajlar
-                    .Where(msg => msg.GonderenId == kullanici.Id || msg.AliciId == kullanici.Id)
-                    .OrderByDescending(msg => msg.GonderilmeZamani)
-                    .Select(msg => msg.GonderilmeZamani)
-                    .FirstOrDefault(),
+        SonGonderilenMesaj = m.AlinanMesajlar
+            .Where(msg => (msg.GonderenId == kullanici.Id && msg.AliciId == m.Id) ||
+                          (msg.GonderenId == m.Id && msg.AliciId == kullanici.Id))
+            .OrderByDescending(msg => msg.GonderilmeZamani)
+            .Select(msg => msg.Text)
+            .FirstOrDefault(),
 
-                    GorulmeyenMesajSayisi = m.AlinanMesajlar
-                    .Count(msg => !msg.GorulmeDurumu && msg.AliciId == kullanici.Id),
-                })
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
+        SonGonderilenMesajTarihi = m.AlinanMesajlar
+            .Where(msg => (msg.GonderenId == kullanici.Id && msg.AliciId == m.Id) ||
+                          (msg.GonderenId == m.Id && msg.AliciId == kullanici.Id))
+            .OrderByDescending(msg => msg.GonderilmeZamani)
+            .Select(msg => msg.GonderilmeZamani)
+            .FirstOrDefault(),
+
+        GorulmeyenMesajSayisi = m.AlinanMesajlar
+            .Count(msg => !msg.GorulmeDurumu && msg.AliciId == kullanici.Id &&
+                          (msg.GonderenId == m.Id || msg.AliciId == m.Id)),
+    })
+    .AsNoTracking()
+    .ToListAsync(cancellationToken);
+
+
 
             if (!mesajGonderilenKullanicilar.Any()) throw new Exception("Kullanıcı Bulunamadı");
 
