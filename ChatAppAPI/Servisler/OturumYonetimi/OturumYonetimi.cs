@@ -70,11 +70,11 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
             }
         }
 
-        public async Task<string?> KullaniciAdiIleGirisYap(string kullaniciAdi)
+        public async Task<string?> KullaniciAdiIleGirisYap(string kullaniciAdi, CancellationToken cancellationToken)
         {
             try
             {
-                Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciAdi).FirstOrDefaultAsync();
+                Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciAdi).FirstOrDefaultAsync(cancellationToken);
                 if (kullanici == null)
                 {
                     var byteArray = Encoding.Default.GetBytes(Guid.NewGuid().ToString());
@@ -86,8 +86,8 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
                         KullaniciAdi = kullaniciAdi,
                         KullaniciSifresi = hashedSifre
                     };
-                    await context.Kullanicis.AddAsync(yeniKullanici);
-                    await context.SaveChangesAsync();
+                    await context.Kullanicis.AddAsync(yeniKullanici,cancellationToken);
+                    await context.SaveChangesAsync(cancellationToken);
 
                 }
                 string? token = jwtServisi.KullaniciAdiIleTokenOlustur(kullaniciAdi);

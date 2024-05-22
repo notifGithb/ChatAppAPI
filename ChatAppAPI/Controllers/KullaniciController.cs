@@ -11,17 +11,17 @@ namespace ChatAppAPI.Controllers
     public class KullaniciController(IKullaniciServisi kullaniciServisi) : ControllerBase
     {
         [HttpGet]
-        public async Task<IActionResult> MevcutKullaniciGetir()
+        public async Task<IActionResult> MevcutKullaniciGetir(CancellationToken cancellationToken)
         {
-            KullaniciGetirDTO? kullanici = await kullaniciServisi.MevcutKullaniciGetir();
+            KullaniciGetirDTO? kullanici = await kullaniciServisi.MevcutKullaniciGetir(cancellationToken);
             return Ok(kullanici);
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> TumDigerKullanicilariGetir()
+        public async Task<IActionResult> TumDigerKullanicilariGetir(CancellationToken cancellationToken)
         {
-            IEnumerable<KullaniciGetirDTO> kullanicilar = await kullaniciServisi.TumDigerKullanicilariGetir();
+            IEnumerable<KullaniciGetirDTO> kullanicilar = await kullaniciServisi.TumDigerKullanicilariGetir(cancellationToken);
             return Ok(kullanicilar);
         }
     }

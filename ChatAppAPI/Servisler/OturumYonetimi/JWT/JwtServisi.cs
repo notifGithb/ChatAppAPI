@@ -52,7 +52,7 @@ namespace ChatAppAPI.Servisler.OturumYonetimi.JWT
                 Subject = new ClaimsIdentity(claims),
                 Audience = configuration["Jwt:Audience"],
                 Issuer = configuration["Jwt:Issuer"],
-                Expires = DateTime.UtcNow.AddHours(3),
+                //Expires = DateTime.UtcNow.AddHours(3),
                 SigningCredentials = new SigningCredentials(
                     key,
                     SecurityAlgorithms.HmacSha256Signature

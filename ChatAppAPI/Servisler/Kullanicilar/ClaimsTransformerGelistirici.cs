@@ -26,7 +26,7 @@ namespace ChatAppAPI.Servisler.Kullanicilar
             }
         }
 
-        public Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
+        public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
         {
             try
             {
@@ -39,7 +39,7 @@ namespace ChatAppAPI.Servisler.Kullanicilar
                     {
                         tokenKullaniciBilgisi = new TokenKullaniciBilgisiGelistirici(claimsIdentity);
 
-                        var kullaniciBilgi = kullaniciServisi.KullaniciGetir(
+                        var kullaniciBilgi = await kullaniciServisi.KullaniciGetir(
                             tokenKullaniciBilgisi.KullaniciAdi
                         );
                         if (kullaniciBilgi == null)
@@ -56,7 +56,7 @@ namespace ChatAppAPI.Servisler.Kullanicilar
                 throw;
             }
 
-            return Task.FromResult(principal);
+            return principal;
         }
     }
 }

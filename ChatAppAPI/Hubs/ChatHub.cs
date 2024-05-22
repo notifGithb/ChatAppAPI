@@ -7,7 +7,7 @@ namespace ChatAppAPI.Hubs
 {
     public class ChatHub(IMesajServisi mesajServisi) : Hub
     {
-        public static List<string> BagliKullaniciIdler { get; } = new List<string>();
+        public static List<string> BagliKullaniciIdler { get; } = [];
 
         public async Task SendMessageToUser(MesajGonderDTO messageDto)
         {

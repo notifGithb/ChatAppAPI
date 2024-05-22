@@ -1,50 +1,48 @@
-﻿using ChatAppAPI.Servisler.Mesajlar;
+﻿using ChatAppAPI.Hubs;
+using ChatAppAPI.Servisler.Mesajlar;
 using ChatAppAPI.Servisler.Mesajlar.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
 
 namespace ChatAppAPI.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
     [Authorize]
-    public class MesajController(IMesajServisi mesajServisi) : ControllerBase
+    public class MesajController(IMesajServisi mesajServisi, IHubContext<ChatHub> hubContext) : ControllerBase
     {
+
+       // [HttpPost]
+        //public async Task<IActionResult> MesajGonder([FromBody] MesajGonderDTO mesajGonderDTO, CancellationToken cancellationToken)
+        //{
+        //    await mesajServisi.MesajEkle(mesajGonderDTO, cancellationToken);
+
+        //    if (ChatHub.BagliKullaniciIdler.Contains(mesajGonderDTO.AliciAdi))
+        //    {
+        //        await hubContext.Clients
+        //            .Group(mesajGonderDTO.AliciAdi)
+        //                .SendAsync("messageToUserReceived", JsonConvert.SerializeObject(mesajGonderDTO), cancellationToken);
+        //    }
+        //    return Ok();
+        //}
+
         [HttpGet]
-        public async Task<IActionResult> MesajlarıGetir(string gonderenAdi, string aliciAdi)
+        public async Task<IActionResult> MesajlarıGetir(string aliciAdi, CancellationToken cancellationToken)
         {
-            if (ModelState.IsValid)
-            {
-                var messages = await mesajServisi.MesajlarıGetir(new KullaniciMesajlariGetirDTO { GonderenKullaniciAdi = gonderenAdi, AliciKullaniciAdi = aliciAdi });
-                if (!messages.Any()) return NotFound();
-                return Ok(messages);
-            }
-            return BadRequest();
+            IEnumerable<MesajGetirDTO> mesajlar = await mesajServisi.MesajlariGetir(aliciAdi, cancellationToken);
+
+            return Ok(mesajlar);
         }
 
 
-        [HttpPatch]
-        public async Task<IActionResult> MesajlariGorulduYap([FromBody] MesajlariGorulduYapDTO setUserMessages)
-        {
-            if (ModelState.IsValid)
-            {
-                if (await mesajServisi.MesajlariGorulduYap(setUserMessages)) return Ok();
-                return NotFound();
-            }
-            return BadRequest();
-        }
-
         [HttpGet]
-        public async Task<IActionResult> MesajlasilanKullanicilariGetir()
+        public async Task<IActionResult> MesajlasilanKullanicilariGetir(CancellationToken cancellationToken)
         {
-            string? mevcutKullaniciId = User.Identity?.Name;
+            IEnumerable<MesajlasilanKullanicilariGetirDTO> mesajlaşılanKullanıcılar = await mesajServisi.MesajlasilanKullanicilariGetir(cancellationToken);
 
-            if (mevcutKullaniciId == null) return Unauthorized();
-
-            var messagedUsers = await mesajServisi.MesajlasilanKullanicilariGetir(mevcutKullaniciId);
-            if (messagedUsers == null) return NotFound();
-
-            return Ok(messagedUsers);
+            return Ok(mesajlaşılanKullanıcılar);
         }
     }
 }

@@ -36,9 +36,9 @@ namespace ChatAppAPI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> KullaniciAdiIleGirisYap(string kullaniciAdi)
+        public async Task<IActionResult> KullaniciAdiIleGirisYap(string kullaniciAdi, CancellationToken cancellationToken)
         {
-            string? token = await oturumYonetimi.KullaniciAdiIleGirisYap(kullaniciAdi);
+            string? token = await oturumYonetimi.KullaniciAdiIleGirisYap(kullaniciAdi, cancellationToken);
 
             if (token != null)
             {

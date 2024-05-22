@@ -5,8 +5,8 @@ namespace ChatAppAPI.Servisler.Kullanicilar
     public interface IKullaniciServisi
     {
         string? MevcutKullaniciAdi { get; }
-        KullaniciGetirDTO KullaniciGetir(string kullaniciAdi);
-        Task<KullaniciGetirDTO> MevcutKullaniciGetir();
-        Task<IEnumerable<KullaniciGetirDTO>> TumDigerKullanicilariGetir();
+        Task<KullaniciGetirDTO> KullaniciGetir(string kullaniciAdi);
+        Task<KullaniciGetirDTO> MevcutKullaniciGetir(CancellationToken cancellationToken);
+        Task<IEnumerable<KullaniciGetirDTO>> TumDigerKullanicilariGetir(CancellationToken cancellationToken);
     }
 }

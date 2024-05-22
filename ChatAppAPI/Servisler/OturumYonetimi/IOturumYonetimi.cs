@@ -6,7 +6,7 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
     {
         Task KayitOl(KullaniciKayitDto model);
         Task<string?> GirisYap(KullaniciGirisDto model);
-        Task<string?> KullaniciAdiIleGirisYap(string kullaniciAdi);
+        Task<string?> KullaniciAdiIleGirisYap(string kullaniciAdi, CancellationToken cancellationToken);
 
     }
 }
