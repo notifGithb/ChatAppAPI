@@ -70,10 +70,12 @@ namespace ChatAppAPI.Servisler.Mesajlar
         {
             Kullanici? kullanici = await context.Kullanicis
                .Where(k => k.KullaniciAdi == kullaniciServisi.MevcutKullaniciAdi)
-               .AsNoTracking().FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Kullanıcı Bulunamadı");
+               .AsNoTracking()
+               .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Kullanıcı Bulunamadı");
 
 
-            var mesajlasilanKullanicilar = await context.Mesajs.Where(m => m.GonderenId == kullanici.Id || m.AliciId == kullanici.Id)
+            var mesajlasilanKullanicilar = await context.Mesajs
+                .Where(m => m.GonderenId == kullanici.Id || m.AliciId == kullanici.Id)
                 .Select(m => m.GonderenId == kullanici.Id ? m.AliciId : m.GonderenId)
                 .Distinct()
                 .Select(kullaniciAdi => new
@@ -90,7 +92,9 @@ namespace ChatAppAPI.Servisler.Mesajlar
                     {
                         SonMesajGonderenAdi = msg.Gonderen.KullaniciAdi,
                         SonGonderilenMesaj = msg.Text,
-                        SonGonderilenMesajTarihi = msg.GonderilmeZamani
+                        SonGonderilenMesajTarihi = msg.GonderilmeZamani.ToShortDateString(),
+                        SonGonderilenMesajSaati = msg.GonderilmeZamani.ToShortTimeString(),
+
                     })
                     .AsNoTracking()
                     .FirstOrDefault(),
@@ -99,7 +103,9 @@ namespace ChatAppAPI.Servisler.Mesajlar
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            return mesajlasilanKullanicilar.Cast<object>().ToList();
+            if (mesajlasilanKullanicilar.Count == 0) throw new Exception("Mesajlaşılan Kullanıcı Bulunamadı");
+
+            return mesajlasilanKullanicilar;
         }
     }
 }
