@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ChatAppAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class mig : Migration
+    public partial class mig_01 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,7 +16,7 @@ namespace ChatAppAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    KullaniciAdi = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    KullaniciAdi = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     KullaniciSifresi = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProfileImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ProfileImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -35,7 +35,6 @@ namespace ChatAppAPI.Migrations
                     Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     GonderilmeZamani = table.Column<DateTime>(type: "datetime2", nullable: false),
                     GorulmeDurumu = table.Column<bool>(type: "bit", nullable: false),
-                    GonderilmeDurumu = table.Column<bool>(type: "bit", nullable: false),
                     GonderenId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     AliciId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -56,31 +55,11 @@ namespace ChatAppAPI.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "MesajOutboxes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    GonderenId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AliciId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MesajId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MesajOutboxes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_MesajOutboxes_Mesajs_MesajId",
-                        column: x => x.MesajId,
-                        principalTable: "Mesajs",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
-                name: "IX_MesajOutboxes_MesajId",
-                table: "MesajOutboxes",
-                column: "MesajId");
+                name: "IX_Kullanicis_KullaniciAdi",
+                table: "Kullanicis",
+                column: "KullaniciAdi",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Mesajs_AliciId",
@@ -96,9 +75,6 @@ namespace ChatAppAPI.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "MesajOutboxes");
-
             migrationBuilder.DropTable(
                 name: "Mesajs");
 

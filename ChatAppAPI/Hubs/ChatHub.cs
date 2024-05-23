@@ -1,10 +1,12 @@
 ﻿using ChatAppAPI.Servisler.Mesajlar;
 using ChatAppAPI.Servisler.Mesajlar.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 
 namespace ChatAppAPI.Hubs
 {
+    [Authorize]
     public class ChatHub(IMesajServisi mesajServisi) : Hub
     {
         public static List<string> BagliKullaniciIdler { get; } = [];
