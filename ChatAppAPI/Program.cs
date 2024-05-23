@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,8 +30,8 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<IMesajServisi, MesajServisi>();
 builder.Services.AddScoped<IOturumYonetimi, OturumYonetimi>();
 builder.Services.AddScoped<IJwtServisi, JwtServisi>();
-builder.Services.AddScoped<IKullaniciServisi, KullaniciServisi>();
-builder.Services.AddScoped<IClaimsTransformation, ClaimsTransformerGelistirici>();
+builder.Services.AddTransient<IKullaniciServisi, KullaniciServisi>();
+builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformerGelistirici>();
 
 
 builder.Services.AddEndpointsApiExplorer();

@@ -21,7 +21,7 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
                 model.KullaniciSifresi = hashedSifre;
                 model.KullaniciAdi = model.KullaniciAdi.Trim().ToLower();
 
-                Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == model.KullaniciAdi && k.KullaniciSifresi == model.KullaniciSifresi).FirstOrDefaultAsync();
+                Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == model.KullaniciAdi && k.KullaniciSifresi == model.KullaniciSifresi).AsNoTracking().FirstOrDefaultAsync();
                 if (kullanici == null)
                 {
                     return null;
@@ -46,7 +46,7 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
                     throw new ArgumentNullException(nameof(model), "Model boş olamaz.");
                 }
 
-                var mevcutKullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == model.KullaniciAdi).FirstOrDefaultAsync();
+                var mevcutKullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == model.KullaniciAdi).AsNoTracking().FirstOrDefaultAsync();
 
                 if (mevcutKullanici != null)
                 {
@@ -74,7 +74,7 @@ namespace ChatAppAPI.Servisler.OturumYonetimi
         {
             try
             {
-                Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciAdi).FirstOrDefaultAsync(cancellationToken);
+                Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciAdi).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
                 if (kullanici == null)
                 {
                     var byteArray = Encoding.Default.GetBytes(Guid.NewGuid().ToString());

@@ -10,21 +10,21 @@ namespace ChatAppAPI.Servisler.Kullanicilar
     {
         public string? MevcutKullaniciAdi => httpContextAccessor.HttpContext?.User?.Identity?.Name;
 
-        public async Task<KullaniciGetirDTO> KullaniciGetir(string kullaniciAdi)
+        public KullaniciGetirDTO KullaniciGetir(string kullaniciAdi)
         {
-            return mapper.Map<KullaniciGetirDTO>(await context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciAdi).FirstOrDefaultAsync());
+            return mapper.Map<KullaniciGetirDTO>(context.Kullanicis.Where(k => k.KullaniciAdi == kullaniciAdi).AsNoTracking().FirstOrDefault());
         }
 
         public async Task<KullaniciGetirDTO> MevcutKullaniciGetir(CancellationToken cancellationToken)
         {
-            Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == MevcutKullaniciAdi).FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Kullanıcı Bulunamadı");
+            Kullanici? kullanici = await context.Kullanicis.Where(k => k.KullaniciAdi == MevcutKullaniciAdi).AsNoTracking().FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Kullanıcı Bulunamadı");
 
             return mapper.Map<KullaniciGetirDTO>(kullanici);
         }
 
         public async Task<IEnumerable<KullaniciGetirDTO>> TumDigerKullanicilariGetir(CancellationToken cancellationToken)
         {
-            IEnumerable<Kullanici> kullanicilar = await context.Kullanicis.Where(k => k.KullaniciAdi != MevcutKullaniciAdi).ToListAsync(cancellationToken);
+            IEnumerable<Kullanici> kullanicilar = await context.Kullanicis.Where(k => k.KullaniciAdi != MevcutKullaniciAdi).AsNoTracking().ToListAsync(cancellationToken);
 
             if (!kullanicilar.Any()) throw new Exception("Kullanıcı Bulunamadı");
             return mapper.Map<IEnumerable<KullaniciGetirDTO>>(kullanicilar);

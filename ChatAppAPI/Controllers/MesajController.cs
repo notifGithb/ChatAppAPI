@@ -14,7 +14,7 @@ namespace ChatAppAPI.Controllers
     public class MesajController(IMesajServisi mesajServisi, IHubContext<ChatHub> hubContext) : ControllerBase
     {
 
-       // [HttpPost]
+        // [HttpPost]
         //public async Task<IActionResult> MesajGonder([FromBody] MesajGonderDTO mesajGonderDTO, CancellationToken cancellationToken)
         //{
         //    await mesajServisi.MesajEkle(mesajGonderDTO, cancellationToken);
@@ -29,9 +29,9 @@ namespace ChatAppAPI.Controllers
         //}
 
         [HttpGet]
-        public async Task<IActionResult> MesajlarıGetir(string aliciAdi, CancellationToken cancellationToken)
+        public async Task<IActionResult> MesajlariGetir(string aliciAdi, int sayfaBuyuklugu, int sayfaNumarasi, CancellationToken cancellationToken)
         {
-            IEnumerable<MesajGetirDTO> mesajlar = await mesajServisi.MesajlariGetir(aliciAdi, cancellationToken);
+            IEnumerable<MesajGetirDTO> mesajlar = await mesajServisi.MesajlariGetir(aliciAdi, sayfaBuyuklugu, sayfaNumarasi, cancellationToken);
 
             return Ok(mesajlar);
         }
@@ -40,7 +40,7 @@ namespace ChatAppAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> MesajlasilanKullanicilariGetir(CancellationToken cancellationToken)
         {
-            IEnumerable<MesajlasilanKullanicilariGetirDTO> mesajlaşılanKullanıcılar = await mesajServisi.MesajlasilanKullanicilariGetir(cancellationToken);
+            IEnumerable<object> mesajlaşılanKullanıcılar = await mesajServisi.MesajlasilanKullanicilariGetir(cancellationToken);
 
             return Ok(mesajlaşılanKullanıcılar);
         }
